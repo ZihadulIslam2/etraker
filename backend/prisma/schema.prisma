@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EmailTracking {
+  id             String         @id @default(uuid())
+  recipientEmail String         @map("recipient_email")
+  subject        String         @default("")
+  trackingUrl    String?        @map("tracking_url")
+  sentAt         DateTime       @default(now()) @map("sent_at")
+  openedAt       DateTime?      @map("opened_at")
+  openCount      Int            @default(0) @map("open_count")
+  lastIp         String?        @map("last_ip")
+  lastUserAgent  String?        @map("last_user_agent")
+  status         String         @default("sent")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  opens OpenEvent[]
+
+  @@map("email_tracking")
+  @@index([recipientEmail])
+  @@index([sentAt])
+  @@index([status])
+}
+
+model OpenEvent {
+  id         String         @id @default(uuid())
+  trackingId String         @map("tracking_id")
+  ip         String?
+  userAgent  String?        @map("user_agent")
+  referer    String?
+  detectedAt DateTime       @default(now()) @map("detected_at")
+
+  tracking EmailTracking @relation(fields: [trackingId], references: [id], onDelete: Cascade)
+
+  @@map("open_events")
+  @@index([trackingId])
+  @@index([detectedAt])
+}
