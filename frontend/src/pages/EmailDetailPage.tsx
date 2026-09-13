@@ -6,6 +6,7 @@ import { Card, CardContent, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Skeleton } from '../components/ui/skeleton';
+import { parseUserAgent } from '../lib/userAgent';
 
 export function EmailDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -160,11 +161,21 @@ export function EmailDetailPage() {
                       <span className="text-muted-foreground">•</span>
                       <span>{new Date(open.detectedAt).toLocaleString()}</span>
                     </div>
-                    {open.userAgent && (
-                      <p className="text-xs text-muted-foreground mt-1 truncate">
-                        {open.userAgent}
-                      </p>
-                    )}
+                    {open.userAgent && (() => {
+                      const parsed = parseUserAgent(open.userAgent);
+                      return (
+                        <div className="flex items-center gap-2 mt-1.5 text-xs">
+                          <span className="font-medium text-foreground">
+                            {parsed.clientName}
+                          </span>
+                          {parsed.isProxy && (
+                            <Badge variant="secondary" className="text-[10px] py-0 px-1.5 h-4 font-normal">
+                              Proxy
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               ))}
