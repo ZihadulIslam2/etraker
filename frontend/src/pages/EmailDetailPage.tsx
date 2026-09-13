@@ -13,9 +13,19 @@ export function EmailDetailPage() {
   const { data: email, isLoading } = useEmailDetail(id ?? null);
   const [copied, setCopied] = useState(false);
 
+  const getTrackingUrl = (emailId: string) => {
+    let baseUrl = import.meta.env.VITE_API_URL;
+    if (!baseUrl) {
+      baseUrl = `${window.location.origin}/api`;
+    } else if (!baseUrl.endsWith('/api')) {
+      baseUrl = `${baseUrl.replace(/\/$/, '')}/api`;
+    }
+    return `${baseUrl}/track/open/${emailId}`;
+  };
+
   const copyTrackingUrl = () => {
     if (!email) return;
-    const url = `${window.location.origin}/api/track/open/${email.id}`;
+    const url = getTrackingUrl(email.id);
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -119,7 +129,7 @@ export function EmailDetailPage() {
             </Button>
           </div>
           <div className="p-3 rounded-lg bg-secondary font-mono text-xs text-muted-foreground break-all">
-            {window.location.origin}/api/track/open/{email.id}
+            {getTrackingUrl(email.id)}
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             Add this as a 1x1 image in your email HTML to track opens.

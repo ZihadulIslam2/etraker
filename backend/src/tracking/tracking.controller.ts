@@ -30,10 +30,15 @@ export class TrackingController {
     @Req() req: Request,
     @Res() res: Response,
   ) {
+    const clientIp =
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
+      req.ip ??
+      req.socket.remoteAddress;
+
     this.trackingService
       .recordOpen(
         trackingId,
-        (req.ip ?? req.socket.remoteAddress) ?? null,
+        clientIp ?? null,
         (req.headers['user-agent'] as string) ?? null,
         (req.headers['referer'] as string) ?? null,
       )
